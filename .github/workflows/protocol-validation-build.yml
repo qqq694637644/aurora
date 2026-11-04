@@ -6,6 +6,8 @@ on:
       - gpt/aurora-protocol-validation-plan
     paths:
       - .github/workflows/protocol-validation-build.yml
+      - internal/chatgpt/protocol_local_ws_integration_test.go
+      - internal/accounts/protocol_local_ws_reconnect_test.go
 
 permissions:
   contents: read
@@ -33,11 +35,20 @@ jobs:
           go build -trimpath -o dist/aurora.exe .
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Get-FileHash dist/aurora.exe -Algorithm SHA256 | Format-Table -AutoSize
+      - name: Build test executables for Python-driven local protocol checks
+        shell: pwsh
+        env:
+          CGO_ENABLED: '0'
+        run: |
+          go test -c -o dist/aurora-chatgpt-protocol-tests.exe ./internal/chatgpt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          go test -c -o dist/aurora-accounts-protocol-tests.exe ./internal/accounts
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Upload binary for local Python contract tests
         uses: actions/upload-artifact@v4
         with:
           name: aurora-protocol-windows-amd64
-          path: dist/aurora.exe
+          path: dist/*.exe
           if-no-files-found: error
           retention-days: 3
 
