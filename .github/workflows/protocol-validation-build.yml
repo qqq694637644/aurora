@@ -77,3 +77,8 @@ jobs:
           CGO_ENABLED: '0'
         run: |
           go test -count=1 ./internal/sseparser ./internal/httpstream ./internal/toolcall ./internal/accounts ./internal/chatgpt ./internal/handler ./internal/imageflow ./internal/audioflow
+      - name: Race detector for local WebSocket lifecycle
+        env:
+          CGO_ENABLED: '1'
+        run: |
+          go test -race -count=1 -run '^TestProtocolLocal' ./internal/accounts ./internal/chatgpt
