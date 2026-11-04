@@ -45,6 +45,14 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           go test -c -o dist/aurora-accounts-protocol-tests.exe ./internal/accounts
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          go test -c -o dist/aurora-handler-protocol-tests.exe ./internal/handler
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          go test -c -o dist/aurora-toolcall-protocol-tests.exe ./internal/toolcall
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          go test -c -o dist/aurora-imageflow-protocol-tests.exe ./internal/imageflow
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          go test -c -o dist/aurora-audioflow-protocol-tests.exe ./internal/audioflow
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Upload binary for local Python contract tests
         uses: actions/upload-artifact@v4
         with:
