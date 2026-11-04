@@ -1,0 +1,59 @@
+name: Aurora Protocol Validation Build
+
+on:
+  push:
+    branches:
+      - gpt/aurora-protocol-validation-plan
+    paths:
+      - .github/workflows/protocol-validation-build.yml
+
+permissions:
+  contents: read
+
+jobs:
+  compile-windows:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Build Windows x64 executable
+        shell: pwsh
+        env:
+          CGO_ENABLED: '0'
+          GOOS: windows
+          GOARCH: amd64
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          go build -trimpath -o dist/aurora.exe .
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Get-FileHash dist/aurora.exe -Algorithm SHA256 | Format-Table -AutoSize
+      - name: Upload binary for local Python contract tests
+        uses: actions/upload-artifact@v4
+        with:
+          name: aurora-protocol-windows-amd64
+          path: dist/aurora.exe
+          if-no-files-found: error
+          retention-days: 3
+
+  local-contract-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Run selected protocol unit tests
+        env:
+          CGO_ENABLED: '0'
+        run: |
+          go test -count=1 ./internal/sseparser ./internal/httpstream ./internal/toolcall ./internal/accounts ./internal/chatgpt ./internal/handler ./internal/imageflow ./internal/audioflow
