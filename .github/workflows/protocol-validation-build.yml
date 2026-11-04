@@ -9,6 +9,10 @@ on:
       - internal/chatgpt/protocol_local_ws_integration_test.go
       - internal/accounts/protocol_local_ws_reconnect_test.go
       - internal/accounts/wss_actor.go
+      - internal/chatgpt/protocol_probe_trace.go
+      - internal/chatgpt/protocol_probe_trace_test.go
+      - internal/chatgpt/websocket.go
+      - internal/chatgpt/handler_response.go
 
 permissions:
   contents: read

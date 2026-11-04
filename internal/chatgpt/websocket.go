@@ -120,6 +120,7 @@ func DialChatWebsocketWithStateAndProxy(client httpclient.AuroraHttpClient, acco
 		conn.Close()
 		return nil, err
 	}
+	recordProtocolProbeEvent("websocket_connected")
 	return conn, nil
 }
 

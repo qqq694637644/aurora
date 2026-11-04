@@ -316,6 +316,7 @@ readLoop:
 						defer websocketStream.Close()
 						reader = bufio.NewReader(wsReader)
 						readingWebsocket = true
+						recordProtocolProbeEvent("websocket_handoff_switched")
 						currentEvent = ""
 						continue readLoop
 					}
@@ -328,6 +329,7 @@ readLoop:
 			if topicID, skip := sseparser.HandoffTopicFromPayload(line, currentEvent); skip {
 				if topicID != "" {
 					handoffTopicID = topicID
+					recordProtocolProbeEvent("websocket_handoff_seen")
 				}
 				currentEvent = ""
 				continue
