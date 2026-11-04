@@ -8,6 +8,7 @@ on:
       - .github/workflows/protocol-validation-build.yml
       - internal/chatgpt/protocol_local_ws_integration_test.go
       - internal/accounts/protocol_local_ws_reconnect_test.go
+      - internal/accounts/wss_actor.go
 
 permissions:
   contents: read

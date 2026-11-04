@@ -126,7 +126,10 @@ func (a *WSSActor) run() {
 		// 启动读 goroutine
 		readCh := make(chan []byte, 64)
 		errCh := make(chan error, 1)
-		go a.readLoop(readCh, errCh)
+		// Capture this connection for the reader goroutine. The manager can
+		// close and clear a.conn during reconnect; dereferencing that shared
+		// pointer in readLoop would race with the reconnect lifecycle.
+		go a.readLoop(a.conn, readCh, errCh)
 
 		// 心跳定时器 (30s)
 		heartbeat := time.NewTicker(30 * time.Second)
@@ -280,10 +283,10 @@ func (a *WSSActor) buildWSSURL() string {
 }
 
 // readLoop 持续读取 WSS 消息
-func (a *WSSActor) readLoop(readCh chan<- []byte, errCh chan<- error) {
+func (a *WSSActor) readLoop(conn *websocket.Conn, readCh chan<- []byte, errCh chan<- error) {
 	for {
-		a.conn.SetReadDeadline(time.Now().Add(120 * time.Second))
-		_, raw, err := a.conn.ReadMessage()
+		conn.SetReadDeadline(time.Now().Add(120 * time.Second))
+		_, raw, err := conn.ReadMessage()
 		if err != nil {
 			errCh <- err
 			return
